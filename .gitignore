@@ -8,6 +8,7 @@
 !swarmnet/__init__.py
 !swarmnet/discovery.py
 !swarmnet/logger.py
+!swarmnet/controller.py
 
 !examples
 !examples/discovery_example.py
