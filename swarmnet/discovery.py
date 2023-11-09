@@ -1,14 +1,12 @@
-import wifiConfig
-
-from wifiConfig import WifiConfApp
+import bluetooth
 from swarmnet.logger import Logger
 
 def spawn_wifi_ap() -> None:
-  logger = Logger("spawn_wifi_ap")
-  logger.info_header("Spawning a WiFi access point")
+  logger = Logger("discovery")
+  logger.info_header("Searching for nearby bluetooth devices")
   
-  access_point_config = {"wlan":'wlan0', "inet":None, "ip":'192.168.0.1', "netmask":'255.255.255.0', "ssid":'TestAccessPoint', "password":'1234567890'}
-  flask_app_config = {"host":"0.0.0.0", "port":"8080"}
-  
-  myWifiConfig = wifiConfig.__main__.WifiConfApp(access_point_config, flask_app_config)
-  myWifiConfig.start()
+  nearby_devices = bluetooth.discover_devices(lookup_names=True)
+  logger.success("Found {} devices.".format(len(nearby_devices)))
+
+  for addr, name in nearby_devices:
+    logger.info("{} - {}".format(addr, name))
