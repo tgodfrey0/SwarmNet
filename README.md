@@ -1,5 +1,10 @@
 # SwarmNet
+
 A Bluetooth-based, robust communications library for robot swarms.
+
+## Usage
+
+A `SwarmNet` object must be created that handles all of the communication. Only one instance should be created. To start the communication framework, the `start()` method must be run.
 
 ## Message Format
 
