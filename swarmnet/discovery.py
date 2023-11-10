@@ -1,4 +1,4 @@
-import bluetooth as bt
+import bluetooth
 from bluetooth.btcommon import BluetoothError
 from swarmnet.logger import Logger
 
@@ -10,7 +10,7 @@ def _discover_bt_devices() -> [(str, str)]:
   nearby_devices = 0
   
   try:
-    nearby_devices = bt.discover_devices(lookup_names = True, lookup_class = False)
+    nearby_devices = bluetooth.discover_devices(lookup_names = True, lookup_class = False)
   except BluetoothError: 
     logger.error("Failed to read from bluetooth device")
     return []
@@ -28,7 +28,7 @@ def _discover_bt_devices() -> [(str, str)]:
     
   return nearby_devices
     
-def discover_swarm_devices(swarm_prefix: str) -> {str, str}:
+def discover_swarm_devices(swarm_prefix: str) -> {str: str}:
   logger.info_header("Searching for swarm members")
   
   all_devices: [(str, str)] = _discover_bt_devices()

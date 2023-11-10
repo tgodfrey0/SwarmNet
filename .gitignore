@@ -7,10 +7,7 @@
 !enable_slave.sh
 
 !swarmnet/
-!swarmnet/__init__.py
-!swarmnet/discovery.py
-!swarmnet/logger.py
-!swarmnet/controller.py
+!swarmnet/*.py
 
 !examples
-!examples/discovery_example.py
+!examples/*.py
