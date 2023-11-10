@@ -19,7 +19,7 @@ class SwarmNet:
     
     log.success("SwarmNet controller successfully created")
     
-  def start(self):
+  def start(self) -> None:
     self.devices_lock = threading.Lock()
     self.swarm_list = {}
     self.messages = queue.Queue()
@@ -35,7 +35,7 @@ class SwarmNet:
     
     #receive_thread
   
-  def _update_device_list(self):
+  def _update_device_list(self) -> None:
     for i in range(0, self.discovery_retries):
       ds = discovery.discover_swarm_devices(self.swarm_prefix)
       if ds != {}:
@@ -56,7 +56,7 @@ class SwarmNet:
     self.swarm_list = ds
     self.devices_lock.release()
   
-  def set_log_level(lv: logger.Logger.Log_Level):
+  def set_log_level(lv: logger.Logger.Log_Level) -> None:
     log.set_log_level(lv)
     
 def parse_thread_target(ctrl: SwarmNet):
