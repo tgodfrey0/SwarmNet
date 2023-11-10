@@ -3,6 +3,7 @@
 !.gitignore
 !LICENSE
 !README.md
+!requirements.txt
 
 !swarmnet/
 !swarmnet/__init__.py
