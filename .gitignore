@@ -4,6 +4,7 @@
 !LICENSE
 !README.md
 !requirements.txt
+!enable_slave.sh
 
 !swarmnet/
 !swarmnet/__init__.py

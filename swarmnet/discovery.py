@@ -1,4 +1,4 @@
-import bluetooth
+import bluetooth as bt
 from swarmnet.logger import Logger
 
 logger = Logger("discovery")
@@ -6,7 +6,14 @@ logger = Logger("discovery")
 def _discover_bt_devices() -> [(str, str)]:
   logger.info("Searching for all nearby bluetooth devices")
   
-  nearby_devices = bluetooth.discover_devices(lookup_names = True, lookup_class = False)
+  nearby_devices = 0
+  
+  try:
+    nearby_devices = bt.discover_devices(lookup_names = True, lookup_class = False)
+  except: 
+    logger.error("Failed to read from bluetooth device")
+    return []
+  
   n_devices = len(nearby_devices)
   if n_devices == 1:
     logger.success(f"Found 1 device within range")
@@ -15,8 +22,8 @@ def _discover_bt_devices() -> [(str, str)]:
   else:
     logger.warn(f"Found 0 devices within range")
 
-  # for addr, name in nearby_devices:
-  #   logger.info("{} - {}".format(addr, name))
+  for addr, name in nearby_devices:
+    logger.info("{} - {}".format(addr, name))
     
   return nearby_devices
     
