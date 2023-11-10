@@ -1,5 +1,5 @@
-import swarmnet.discovery as discovery
+from swarmnet.controller import SwarmNet
 
 if __name__=="__main__":
-  while(True):
-    discovery.discover_swarm_devices("swarm-")
+  controller = SwarmNet("swarm1-")
+  controller.start_communication_framework()

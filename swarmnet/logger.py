@@ -46,7 +46,7 @@ class Logger:
       self._log_bold(s, self.Colour_Code.CYAN)
     
   def success(self, s: str) -> None:
-    if(self.log_level.value >= self.Log_Level.SUCCESS.value):
+    if(self.log_level.value <= self.Log_Level.SUCCESS.value):
       self._log_bold_underlined(s, self.Colour_Code.GREEN)
     
   def warn(self, s: str) -> None:
