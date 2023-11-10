@@ -7,6 +7,8 @@ import time
 import swarmnet.logger as logger
 import swarmnet.discovery as discovery
 import swarmnet.parser as parser
+import swarmnet.receiver as receiver
+import swarmnet.sender as sender
 
 log = logger.Logger("controller")
 
@@ -22,8 +24,11 @@ class SwarmNet:
   def start(self) -> None:
     self.devices_lock = threading.Lock()
     self.swarm_list = {}
-    self.messages = queue.Queue()
-    self.parser = parser.Parser(self.fn_map, self.messages)
+    self.rx_queue = queue.Queue()
+    self.tx_queue = queue.Queue()
+    self.parser = parser.Parser(self.fn_map, self.rx_queue)
+    self.receiver = receiver.Receiver()
+    self.sender = sender.Sender()
     
     discovery_thread = threading.Thread(target=discovery_thread_target, args=[self])
     discovery_thread.start()
@@ -33,7 +38,14 @@ class SwarmNet:
     parse_thread.start()
     log.info("Parser thread started")
     
-    #receive_thread
+    receiver_thread = threading.Thread(target=receive_thread_target, args=[self])
+    receiver_thread.start()
+    log.info("Receiver thread started")
+    
+    sender_thread = threading.Thread(target=send_thread_target, args=[self])
+    sender_thread.start()
+    log.info("Sender thread started")
+    
   
   def _update_device_list(self) -> None:
     for i in range(0, self.discovery_retries):
@@ -62,6 +74,14 @@ class SwarmNet:
 def parse_thread_target(ctrl: SwarmNet):
   while(1):
     ctrl.parser.parse_msg()
+    
+def receive_thread_target(ctrl: SwarmNet):
+  while(1):
+    pass
+    
+def send_thread_target(ctrl: SwarmNet):
+  while(1):
+    pass
     
 def discovery_thread_target(ctrl: SwarmNet):
   while(1):

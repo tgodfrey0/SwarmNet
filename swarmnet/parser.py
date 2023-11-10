@@ -3,8 +3,6 @@ import queue
 from typing import Optional, Callable
 
 import swarmnet.logger as logger
-import swarmnet.discovery as discovery
-import swarmnet.controller as controller
 
 log = logger.Logger("parser")
 
