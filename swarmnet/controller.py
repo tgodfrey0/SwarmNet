@@ -30,22 +30,31 @@ class SwarmNet:
     self.receiver = receiver.Receiver()
     self.sender = sender.Sender()
     
-    discovery_thread = threading.Thread(target=discovery_thread_target, args=[self])
-    discovery_thread.start()
+    self.discovery_thread = threading.Thread(target=discovery_thread_target, args=[self])
+    self.discovery_thread_exit_request = False
+    self.discovery_thread.start()
     log.info("Discovery thread started")
     
-    parse_thread = threading.Thread(target=parse_thread_target, args=[self])
-    parse_thread.start()
+    self.parse_thread = threading.Thread(target=parse_thread_target, args=[self])
+    self.parse_thread_exit_request = False
+    self.parse_thread.start()
     log.info("Parser thread started")
     
-    receiver_thread = threading.Thread(target=receive_thread_target, args=[self])
-    receiver_thread.start()
+    self.receiver_thread = threading.Thread(target=receiver_thread_target, args=[self])
+    self.receiver_thread_exit_request = False
+    self.receiver_thread.start()
     log.info("Receiver thread started")
     
-    sender_thread = threading.Thread(target=send_thread_target, args=[self])
-    sender_thread.start()
+    self.sender_thread = threading.Thread(target=sender_thread_target, args=[self])
+    self.sender_thread_exit_request = False
+    self.sender_thread.start()
     log.info("Sender thread started")
     
+  def kill(self) -> None:
+    self.discovery_thread_exit_request = True
+    self.parse_thread_exit_request = True
+    self.receiver_thread_exit_request = True
+    self.sender_thread_exit_request = True
   
   def _update_device_list(self) -> None:
     for i in range(0, self.discovery_retries):
@@ -72,16 +81,22 @@ class SwarmNet:
     log.set_log_level(lv)
     
 def parse_thread_target(ctrl: SwarmNet):
-  while(1):
-    ctrl.parser.parse_msg()
+  while(not ctrl.parse_thread_exit_request):
+    if not ctrl.rx_queue.empty:
+      ctrl.parser.parse_msg()
+    else:
+      time.sleep(0.01)
+  log.info("Parse thread killed")
     
-def receive_thread_target(ctrl: SwarmNet):
-  while(1):
+def receiver_thread_target(ctrl: SwarmNet):
+  while(not ctrl.receiver_thread_exit_request):
     pass
+  log.info("Receiver thread killed")
     
-def send_thread_target(ctrl: SwarmNet):
-  while(1):
+def sender_thread_target(ctrl: SwarmNet):
+  while(not ctrl.sender_thread_exit_request):
     pass
+  log.info("Sender thread killed")
     
 def discovery_thread_target(ctrl: SwarmNet):
   while(1):
@@ -89,4 +104,9 @@ def discovery_thread_target(ctrl: SwarmNet):
     t0 = time.time()
     ctrl._update_device_list()
     t1 = time.time()
-    time.sleep(ctrl.discovery_interval - (t1 - t0))
+    if not ctrl.discovery_thread_exit_request:
+      time.sleep(ctrl.discovery_interval - (t1 - t0))
+    else:
+      break
+    
+  log.info("Discovery thread killed")
