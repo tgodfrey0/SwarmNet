@@ -100,6 +100,7 @@ def receiver_thread_target(ctrl: SwarmNet):
     
 def sender_thread_target(ctrl: SwarmNet):
   while(not ctrl.sender_thread_exit_request):
+    print("ashod")
     if not ctrl.tx_queue.empty:
       ctrl.sender.flush_queue(ctrl.tx_queue)
     else:
