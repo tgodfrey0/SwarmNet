@@ -1,6 +1,7 @@
 import bluetooth
 from bluetooth.btcommon import BluetoothError
 from swarmnet.logger import Logger
+from typing import Dict
 
 logger = Logger("discovery")
 
@@ -28,7 +29,7 @@ def _discover_bt_devices() -> [(str, str)]:
     
   return nearby_devices
     
-def discover_swarm_devices(swarm_prefix: str) -> {str: str}:
+def discover_swarm_devices(swarm_prefix: str) -> Dict[str, str]:
   logger.info_header("Searching for swarm members")
   
   all_devices: [(str, str)] = _discover_bt_devices()
