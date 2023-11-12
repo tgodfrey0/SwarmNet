@@ -18,6 +18,7 @@ class Receiver:
     log.success("SwarmNet receiver started")
     
   def accept_connection(self) -> None:
+    print("IN FUNC")
     client_sock, client_info = self.listener.accept()
     logger.info(f"Connection received")
 

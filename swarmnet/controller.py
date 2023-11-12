@@ -13,14 +13,18 @@ import swarmnet.sender as sender
 log = logger.Logger("controller")
 
 class SwarmNet:
-  def __init__(self, pref: str, mapping: {str: Callable[[Optional[str]], None]}, bt_addr: str, bt_device_retries: int = 3, bt_device_refresh_interval: int = 60):
+  def __init__(self, 
+               pref: str, 
+               mapping: {str: Callable[[Optional[str]], None]}, 
+               bt_addr: str, bt_device_retries: int = 3, 
+               bt_device_refresh_interval: int = 60):
     self.swarm_prefix = pref
     self.fn_map = mapping
     self.discovery_retries = bt_device_retries
     self.discovery_interval = bt_device_refresh_interval
     self.bt_addr = bt_addr
     
-    log.success("SwarmNet controller successfully created")
+    log.success("SwarmNet controller started")
     
   def start(self) -> None:
     self.devices_lock = threading.Lock()
@@ -82,7 +86,7 @@ class SwarmNet:
     log.set_log_level(lv)
     
   def send(self, msg: str):
-    self.tx_queue.put(msg)
+    self.tx_queue.put(msg, block=True)
   
     
 def parse_thread_target(ctrl: SwarmNet):
@@ -91,31 +95,31 @@ def parse_thread_target(ctrl: SwarmNet):
       ctrl.parser.parse_msg()
     else:
       time.sleep(0.01)
-  log.info("Parse thread killed")
+  log.warn("Parse thread killed")
     
 def receiver_thread_target(ctrl: SwarmNet):
   while(not ctrl.receiver_thread_exit_request):
     ctrl.receiver.accept_connection()
-  log.info("Receiver thread killed")
+  log.warn("Receiver thread killed")
     
 def sender_thread_target(ctrl: SwarmNet):
   while(not ctrl.sender_thread_exit_request):
-    print("ashod")
     if not ctrl.tx_queue.empty:
-      ctrl.sender.flush_queue(ctrl.tx_queue)
+      print("IN IF")
+      ctrl.sender.flush_queue(ctrl.get_devices())
     else:
       time.sleep(0.01)
-  log.info("Sender thread killed")
+  log.warn("Sender thread killed") 
     
 def discovery_thread_target(ctrl: SwarmNet):
   while(1):
     # Update every 60 seconds
-    t0 = time.time()
-    ctrl._update_device_list()
-    t1 = time.time()
     if not ctrl.discovery_thread_exit_request:
+      t0 = time.time()
+      ctrl._update_device_list()
+      t1 = time.time()
+    elif not ctrl.discovery_thread_exit_request:
       time.sleep(ctrl.discovery_interval - (t1 - t0))
     else:
       break
-    
-  log.info("Discovery thread killed")
+  log.warn("Discovery thread killed")
