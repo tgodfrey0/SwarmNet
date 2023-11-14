@@ -1,25 +1,23 @@
 import queue
-import bluetooth
-
+import socket
 import swarmnet.logger as logger
 
 log = logger.Logger("receiver")
 
 class Receiver:
-  def __init__(self, addr: str, rx_queue: queue.Queue, tx_queue: queue.Queue):
-    self.listener = bluetooth.BluetoothSocket()
-    self.listener.bind((addr, bluetooth.PORT_ANY))
-    self.listener.listen(1)
-    self.port = self.listener.getsockname()[1]
+  def __init__(self, port: int, rx_queue: queue.Queue, tx_queue: queue.Queue):
+    self.listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    self.listener.bind(('localhost', port))
+    self.listener.listen()
     self.rx = rx_queue
     self.tx = tx_queue
 
-    log.info(f"Waiting for connection on RFCOMM channel {self.port}")
+    log.info("Waiting for connections")
     log.success("SwarmNet receiver started")
     
   def accept_connection(self) -> None:
     print("IN FUNC")
-    client_sock, client_info = self.listener.accept()
+    client_sock, client_info = self.listener.accept() # This waits indefinitely 
     logger.info(f"Connection received")
 
     full_data = ""

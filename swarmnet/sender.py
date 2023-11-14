@@ -1,23 +1,24 @@
-import bluetooth
+import socket
 import queue
-from typing import Dict
+from typing import List
 
 import swarmnet.logger as logger
 
 log = logger.Logger("sender")
 
 class Sender:
-  def __init__(self, tx_queue: queue.Queue):
+  def __init__(self, port: int, tx_queue: queue.Queue):
     self.tx = tx_queue
+    self.port = port
     log.success("SwarmNet sender started")
     
-  def flush_queue(self, devices: Dict[str, str]):
+  def flush_queue(self, devices: List[str]):
     print("here")
     while(not self.tx.empty()):
-      log.info("Sending message")
       msg = self.tx.get()
-      for n,a in devices.items():
-        soc = bluetooth.BluetoothSocket()
-        soc.bind((a, bluetooth.PORT_ANY))
+      log.critical(f"Sending message: {msg}")
+      for a in devices:
+        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        soc.connect((a, self.port))
         soc.send(msg)
         soc.close()
