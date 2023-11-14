@@ -14,12 +14,10 @@ log = logger.Logger("controller")
 
 class SwarmNet:
   def __init__(self, 
-               pref: str, 
                mapping: {str: Callable[[Optional[str]], None]}, 
                device_retries: int = 3, 
                device_refresh_interval: int = 60,
                port: int = 9999):
-    self.swarm_prefix = pref
     self.fn_map = mapping
     self.discovery_retries = device_retries
     self.discovery_interval = device_refresh_interval
@@ -34,7 +32,7 @@ class SwarmNet:
     self.tx_queue = queue.Queue()
     self.parser = parser.Parser(self.fn_map, self.rx_queue)
     self.receiver = receiver.Receiver(self.port, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
-    self.sender = sender.Sender(self.tx_queue)
+    self.sender = sender.Sender(self.port, self.tx_queue)
     
     self.discovery_thread = threading.Thread(target=discovery_thread_target, args=[self])
     self.discovery_thread_exit_request = False
@@ -71,7 +69,7 @@ class SwarmNet:
   
   def _update_device_list(self) -> None:
     for _ in range(0, self.discovery_retries):
-      ds = discovery.discover_swarm_devices(self.swarm_prefix)
+      ds = discovery.discover_swarm_devices()
       if ds != {}:
         self.set_devices(ds)
         return;

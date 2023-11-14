@@ -2,7 +2,7 @@ from swarmnet.controller import SwarmNet
 
 
 if __name__=="__main__":
-  controller = SwarmNet("swarm-", {})
+  controller = SwarmNet({})
   controller.start()
   input("")
   print("A")

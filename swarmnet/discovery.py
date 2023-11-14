@@ -32,7 +32,7 @@ logger = Logger("discovery")
     
 #   return nearby_devices
     
-def discover_swarm_devices(swarm_prefix: str) -> List[str]:
+def discover_swarm_devices() -> List[str]:
   logger.info("Searching for all connected devices")
     
   nearby_devices = []
