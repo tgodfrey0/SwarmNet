@@ -36,7 +36,7 @@ def discover_swarm_devices() -> List[str]:
   logger.info("Searching for all connected devices")
     
   nearby_devices = []
-  for ping in range(1,256):
+  for ping in range(2,255):
     addr = base_ip + str(ping)
     res = subprocess.call(['ping', '-c', '3', addr])
     if(res == 0):
