@@ -1,8 +1,9 @@
 import threading
-import bluetooth
+import socket
 import queue
-from typing import Callable, Optional, Dict
+from typing import Callable, Optional, List
 import time
+import math
 
 import swarmnet.logger as logger
 import swarmnet.discovery as discovery
@@ -22,22 +23,29 @@ class SwarmNet:
     self.discovery_retries = device_retries
     self.discovery_interval = device_refresh_interval
     self.port = port
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 1))
+    self.addr = s.getsockname()[0]
+    s.close()
+    log.info(f"This IP is {self.addr}")
     
     log.success("SwarmNet controller started")
     
   def start(self) -> None:
-    self.devices_lock = threading.Lock()
-    self.swarm_list = {}
+    self.swarm_list = []
+    self.swarm_list_lock = threading.Lock()
+    self.received_ids = []
+    self.received_ids_lock = threading.Lock()
     self.rx_queue = queue.Queue()
     self.tx_queue = queue.Queue()
     self.parser = parser.Parser(self.fn_map, self.rx_queue)
-    self.receiver = receiver.Receiver(self.port, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
-    self.sender = sender.Sender(self.port, self.tx_queue)
+    self.receiver = receiver.Receiver(self.has_seen_message, self.append_seen_messages, self.port, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
+    self.sender = sender.Sender(self.addr, self.port, self.tx_queue)
     
-    self.discovery_thread = threading.Thread(target=discovery_thread_target, args=[self])
-    self.discovery_thread_exit_request = False
-    self.discovery_thread.start()
-    log.info("Discovery thread started")
+    # self.discovery_thread = threading.Thread(target=discovery_thread_target, args=[self])
+    # self.discovery_thread_exit_request = False
+    # self.discovery_thread.start()
+    # log.info("Discovery thread started")
     
     self.parse_thread = threading.Thread(target=parse_thread_target, args=[self])
     self.parse_thread_exit_request = False
@@ -77,23 +85,46 @@ class SwarmNet:
     
     log.error(f"Retry limit ({self.discovery_retries}) reached during swarm discovery")
       
-  def get_devices(self) -> Dict[str, str]:
-    self.devices_lock.acquire()
+  def get_devices(self) -> List[str]:
+    self.swarm_list_lock.acquire()
     ds = self.swarm_list
-    self.devices_lock.release()
+    self.swarm_list_lock.release()
     return ds
   
-  def set_devices(self, ds: Dict[str, str]) -> None:
-    self.devices_lock.acquire()
+  def set_devices(self, ds: List[str]) -> None:
+    self.swarm_list_lock.acquire()
     self.swarm_list = ds
-    self.devices_lock.release()
+    self.swarm_list_lock.release()
+    
+  def get_seen_messages(self) -> List[str]:
+    self.received_ids_lock.acquire()
+    ms = self.received_ids
+    self.received_ids_lock.release()
+    return ms
+  
+  def set_seen_messages(self, ms: List[str]) -> None:
+    self.received_ids_lock.acquire()
+    self.received_ids = ms
+    self.received_ids_lock.release()
+  
+  def append_seen_messages(self, m: str) -> None:
+    self.received_ids_lock.acquire()
+    self.received_ids.append(m)
+    self.received_ids_lock.release()
+    
+  def has_seen_message(self, m: str) -> bool:
+    self.received_ids_lock.acquire()
+    b = m in self.received_ids
+    self.received_ids_lock.release()
+    return b
   
   def set_log_level(lv: logger.Logger.Log_Level) -> None:
     log.set_log_level(lv)
     
   def send(self, msg: str):
-    self.tx_queue.put(msg, block=True)
-  
+    header = f"{time.time()}/{self.addr}"
+    self.append_seen_messages(header)
+    self.tx_queue.put(f"{header}:{msg}", block=True)
     
 def parse_thread_target(ctrl: SwarmNet):
   while(not ctrl.parse_thread_exit_request):

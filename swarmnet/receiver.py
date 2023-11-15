@@ -1,14 +1,17 @@
 import queue
 import socket
+from typing import Callable
 import swarmnet.logger as logger
 
 log = logger.Logger("receiver")
 
 class Receiver:
-  def __init__(self, port: int, rx_queue: queue.Queue, tx_queue: queue.Queue):
+  def __init__(self, received: Callable[[str], bool], register_received: Callable[[str], None], port: int, rx_queue: queue.Queue, tx_queue: queue.Queue):
     self.listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.listener.bind(('localhost', port))
     self.listener.listen()
+    self.received = received
+    self.register_received = register_received
     self.rx = rx_queue
     self.tx = tx_queue
 
@@ -30,5 +33,8 @@ class Receiver:
     except OSError:
       pass
     
-    self.rx.put(full_data)
-    self.tx.put(full_data) # Gossip protocol
+    parts = full_data.split(":", 1)
+    if not self.received(parts[0]):
+      self.rx.put(parts[1])
+      self.register_received(parts[0])
+      self.tx.put(full_data) # Gossip protocol
