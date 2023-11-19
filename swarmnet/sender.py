@@ -17,8 +17,8 @@ class Sender:
     print("here")
     while(not self.tx.empty()):
       msg = self.tx.get()
-      log.critical(f"Sending message: {msg}")
-      for addr in range(1,256):
+      log.info(f"Sending message: {msg}")
+      for addr in range(2,255):
         if(str(addr) == self.self_addr.split(".")[3]):
           continue
         soc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -27,3 +27,4 @@ class Sender:
         # soc.send(msg)
         soc.sendto(bytes(msg, "utf-8"), (f"192.168.0.{addr}", self.port))
         soc.close()
+      log.success("Message sent to all devices on the network")

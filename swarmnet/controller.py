@@ -141,7 +141,7 @@ def receiver_thread_target(ctrl: SwarmNet):
     
 def sender_thread_target(ctrl: SwarmNet):
   while(not ctrl.sender_thread_exit_request):
-    if not ctrl.tx_queue.empty:
+    if not ctrl.tx_queue.empty():
       print("IN IF")
       ctrl.sender.flush_queue(ctrl.get_devices())
     else:
