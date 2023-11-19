@@ -42,7 +42,7 @@ class SwarmNet:
     self.tx_queue = queue.Queue(32)
     self.fn_map["JOIN"] = self._register_new_member
     self.parser = parser.Parser(self.fn_map, self.rx_queue)
-    self.receiver = receiver.Receiver(self.addr, self.port, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
+    self.receiver = receiver.Receiver(self.addr, self.port, self.add_device, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
     self.sender = sender.Sender(self.addr, self.tx_queue, self.remove_device)
     self.broadcaster = broadcaster.Broadcaster(self.addr, self.port, self.rx_queue, self.add_device)
     
@@ -128,13 +128,16 @@ class SwarmNet:
   def set_log_level(lv: logger.Logger.Log_Level) -> None:
     log.set_log_level(lv)
     
+  def _calc_header(self) -> str:
+    return f"{time.time()}/{self.addr}/{self.port}"
+    
   def send(self, msg: str):
-    header = f"{time.time()}/{self.addr}"
+    header = self._calc_header()
     self.append_seen_messages(header)
     self.tx_queue.put(f"{header}:{msg}", block=True)
     
   def broadcast(self, msg: str):
-    header = f"{time.time()}/{self.addr}"
+    header = self._calc_header()
     self.append_seen_messages(header)
     self.broadcaster.broadcast(f"{header}:{msg}")
     
