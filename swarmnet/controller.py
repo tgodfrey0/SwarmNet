@@ -133,7 +133,7 @@ class SwarmNet:
     
 def parse_thread_target(ctrl: SwarmNet):
   while(not ctrl.parse_thread_exit_request):
-    if not ctrl.rx_queue.empty:
+    if not ctrl.rx_queue.empty():
       ctrl.parser.parse_msg()
     else:
       time.sleep(0.01)
