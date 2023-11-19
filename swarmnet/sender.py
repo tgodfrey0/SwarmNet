@@ -22,6 +22,7 @@ class Sender:
         if(str(addr) == self.self_addr.split(".")[3]):
           continue
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        soc.settimeout(10)
         soc.connect((f"192.168.0.{addr}", self.port))
         soc.send(msg)
         soc.close()
