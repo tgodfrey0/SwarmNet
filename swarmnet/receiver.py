@@ -30,7 +30,7 @@ class Receiver:
     except TimeoutError:
       return
     
-    log.info(f"Connection received from {client_sock.getsockname()[0]}")
+    log.info(f"Connection received")
 
     full_data: str = ""
     try:
@@ -42,6 +42,7 @@ class Receiver:
     except OSError:
       pass
     
+    #TODO: Add new devices to list
     parts = full_data.split(":", 1)
     if not self.received(parts[0]):
       self.rx.put(parts[1])

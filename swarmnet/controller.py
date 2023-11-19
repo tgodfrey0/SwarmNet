@@ -77,8 +77,8 @@ class SwarmNet:
     
   def _register_new_member(self, msg: Optional[str]) -> None:
     addr = msg.split(" ", 1)[0]
-    port = msg.split(" ", 1)[0]
-    self.add_device((addr, port))
+    port = msg.split(" ", 1)[1]
+    self.add_device((addr, int(port)))
       
   def get_devices(self) -> List[Tuple[str, int]]:
     self.swarm_list_lock.acquire()
