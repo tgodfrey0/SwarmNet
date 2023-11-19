@@ -44,17 +44,17 @@ class Receiver:
     
     log.info(f"Connection received")
 
-    full_data = ""
+    full_data: str = ""
     try:
       while True:
         data = client_sock.recv(1024)
         if not data:
           break
-        full_data += data
+        full_data += data.decode("utf-8")
     except OSError:
       pass
     
-    parts = full_data.decode("utf-8").split(":", 1)
+    parts = full_data.split(":", 1)
     if not self.received(parts[0]):
       self.rx.put(parts[1])
       self.register_received(parts[0])
