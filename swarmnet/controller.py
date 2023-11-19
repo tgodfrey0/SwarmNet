@@ -44,7 +44,7 @@ class SwarmNet:
     self.parser = parser.Parser(self.fn_map, self.rx_queue)
     self.receiver = receiver.Receiver(self.addr, self.port, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
     self.sender = sender.Sender(self.addr, self.tx_queue, self.remove_device)
-    self.broadcaster = broadcaster.Broadcaster(self.addr, self.broadcast_port, self.add_device)
+    self.broadcaster = broadcaster.Broadcaster(self.broadcast_port, self.add_device)
     
     self.parse_thread = threading.Thread(target=parse_thread_target, args=[self])
     self.parse_thread_exit_request = False

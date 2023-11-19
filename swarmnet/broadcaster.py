@@ -7,13 +7,13 @@ import swarmnet.logger as logger
 log = logger.Logger("broadcaster")
 
 class Broadcaster:
-  def __init__(self, addr: str, port: int, rx: queue.Queue):
-    self.addr = addr
+  def __init__(self, port: int, rx: queue.Queue):
+    self.addr = "192.168.0.255"
     self.port = port
     self.rx = rx
     
     self.listener = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    self.listener.bind((addr, port))
+    self.listener.bind((self.addr, self.port))
     self.listener.settimeout(5)
     
     log.success("SwarmNet broadcaster started")
