@@ -7,9 +7,9 @@ import threading
 log = logger.Logger("receiver")
 
 class Receiver:
-  class Handler(socketserver.DatagramRequestHandler):
+  class Handler(socketserver.StreamRequestHandler):
     def handle(self):
-      msg = self.rfile.readline().strip()
+      msg: str = self.rfile.readline().strip().decode("utf-8")
       parts = msg.split(":", 1)
       if not self.received(parts[0]):
         super.rx.put(parts[1])
@@ -21,7 +21,7 @@ class Receiver:
     # self.listener.bind((addr, port))
     # self.listener.listen()
     # self.listener.settimeout(10)
-    self.listener = socketserver.UDPServer((addr, port), self.Handler)
+    self.listener = socketserver.TCPServer((addr, port), self.Handler)
     self.received = received
     self.register_received = register_received
     self.rx = rx_queue
