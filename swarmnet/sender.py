@@ -21,8 +21,9 @@ class Sender:
       for addr in range(1,256):
         if(str(addr) == self.self_addr.split(".")[3]):
           continue
-        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        soc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         soc.settimeout(10)
-        soc.connect((f"192.168.0.{addr}", self.port))
-        soc.send(msg)
+        # soc.connect((f"192.168.0.{addr}", self.port))
+        # soc.send(msg)
+        soc.sendto(bytes(msg, "utf-8"), (f"192.168.0.{addr}", self.port))
         soc.close()

@@ -27,7 +27,7 @@ class SwarmNet:
     s.connect(("8.8.8.8", 1))
     self.addr = s.getsockname()[0]
     s.close()
-    log.info(f"This IP is {self.addr}")
+    log.info(f"This address is {self.addr}:{self.port}")
     
     log.success("SwarmNet controller started")
     
@@ -136,7 +136,7 @@ def parse_thread_target(ctrl: SwarmNet):
     
 def receiver_thread_target(ctrl: SwarmNet):
   while(not ctrl.receiver_thread_exit_request):
-    ctrl.receiver.accept_connection()
+    ctrl.receiver.control_receiver(ctrl.receiver_thread_exit_request)
   log.warn("Receiver thread killed")
     
 def sender_thread_target(ctrl: SwarmNet):
