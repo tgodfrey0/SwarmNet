@@ -92,6 +92,8 @@ class SwarmNet:
     self.swarm_list_lock.release()
     
   def add_device(self, d: Tuple[str, int]) -> None:
+    if(d[0] == self.addr):
+      return
     self.swarm_list_lock.acquire()
     self.swarm_list.append(d)
     self.swarm_list_lock.release()
