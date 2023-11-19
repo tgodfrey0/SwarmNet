@@ -17,7 +17,7 @@ class Sender:
     while(not self.tx.empty()):
       msg = self.tx.get()
       log.info(f"Sending message: {msg}")
-      #for addr in range(2,255):
+      #! for addr in range(2,255):
       for addr in [173]:
         if(str(addr) == self.self_addr.split(".")[3]):
           continue
