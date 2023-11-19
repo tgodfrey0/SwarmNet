@@ -1,7 +1,7 @@
 import threading
 import socket
 import queue
-from typing import Callable, Optional, List
+from typing import Callable, Optional, List, Dict
 import time
 import math
 
@@ -15,7 +15,7 @@ log = logger.Logger("controller")
 
 class SwarmNet:
   def __init__(self, 
-               mapping: {str: Callable[[Optional[str]], None]}, 
+               mapping: Dict[str, Callable[[Optional[str]], None]], 
                device_retries: int = 3, 
                device_refresh_interval: int = 60,
                port: int = 9999):
@@ -61,6 +61,11 @@ class SwarmNet:
     self.sender_thread_exit_request = False
     self.sender_thread.start()
     log.info("Sender thread started")
+    
+    #TODO: Register with a JOIN command and the address and port
+    #TODO: JOIN ADDR PORT
+    #TODO: Add a join parser to the dictionary
+    #TODO: Store in a list and pass to the sender
     
   def kill(self) -> None:
     self.discovery_thread_exit_request = True
