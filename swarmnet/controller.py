@@ -6,7 +6,7 @@ import time
 import math
 
 import swarmnet.logger as logger
-import swarmnet.discovery as discovery
+import swarmnet.broadcaster as broadcaster
 import swarmnet.parser as parser
 import swarmnet.receiver as receiver
 import swarmnet.sender as sender
@@ -18,11 +18,13 @@ class SwarmNet:
                mapping: Dict[str, Callable[[Optional[str]], None]], 
                device_retries: int = 3, 
                device_refresh_interval: int = 60,
-               port: int = 51000):
+               port: int = 51000,
+               broadcast_port: int = 51001):
     self.fn_map = mapping
     self.discovery_retries = device_retries
     self.discovery_interval = device_refresh_interval
     self.port = port
+    self.broadcast_port = broadcast_port
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 1))
     self.addr = s.getsockname()[0]
@@ -42,6 +44,7 @@ class SwarmNet:
     self.parser = parser.Parser(self.fn_map, self.rx_queue)
     self.receiver = receiver.Receiver(self.addr, self.port, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
     self.sender = sender.Sender(self.addr, self.tx_queue, self.remove_device)
+    self.broadcaster = broadcaster.Broadcaster(self.addr, self.broadcast_port, self.add_device)
     
     self.parse_thread = threading.Thread(target=parse_thread_target, args=[self])
     self.parse_thread_exit_request = False
@@ -58,10 +61,15 @@ class SwarmNet:
     self.sender_thread.start()
     log.info("Sender thread started")
     
-    self.send(f"JOIN {self.addr} {self.port}")
+    self.broadcaster_thread = threading.Thread(target=broadcaster_thread_target, args=[self])
+    self.broadcaster_thread_exit_request = False
+    self.broadcaster_thread.start()
+    log.info("Broadcaster thread started")
+    
+    self.broadcast(f"JOIN {self.addr} {self.port}")
     
   def kill(self) -> None:
-    self.discovery_thread_exit_request = True
+    self.broadcaster_thread_exit_request = True
     self.parse_thread_exit_request = True
     self.receiver_thread_exit_request = True
     self.sender_thread_exit_request = True
@@ -69,6 +77,7 @@ class SwarmNet:
     self.parse_thread.join()
     self.receiver_thread.join()
     self.sender_thread.join()
+    self.broadcaster_thread.join
     
     log.warn("All threads have been killed")
     
@@ -130,6 +139,11 @@ class SwarmNet:
     self.append_seen_messages(header)
     self.tx_queue.put(f"{header}:{msg}", block=True)
     
+  def broadcast(self, msg: str):
+    header = f"{time.time()}/{self.addr}"
+    self.append_seen_messages(header)
+    self.broadcaster.broadcast(f"{header}:{msg}")
+    
 def parse_thread_target(ctrl: SwarmNet):
   while(not ctrl.parse_thread_exit_request):
     if not ctrl.rx_queue.empty():
@@ -142,6 +156,11 @@ def receiver_thread_target(ctrl: SwarmNet):
   while(not ctrl.receiver_thread_exit_request):
     ctrl.receiver.accept_connection()
   log.warn("Receiver thread killed")
+  
+def broadcaster_thread_target(ctrl: SwarmNet):
+  while(not ctrl.broadcaster_thread_exit_request):
+    ctrl.broadcaster.listen_broadcast()
+  log.warn("Broadcaster thread killed")
     
 def sender_thread_target(ctrl: SwarmNet):
   while(not ctrl.sender_thread_exit_request):
@@ -151,15 +170,3 @@ def sender_thread_target(ctrl: SwarmNet):
       time.sleep(0.01)
   log.warn("Sender thread killed") 
     
-# def discovery_thread_target(ctrl: SwarmNet):
-#   while(1):
-#     # Update every 60 seconds
-#     if not ctrl.discovery_thread_exit_request:
-#       t0 = time.time()
-#       ctrl._update_device_list()
-#       t1 = time.time()
-#     elif not ctrl.discovery_thread_exit_request:
-#       time.sleep(ctrl.discovery_interval - (t1 - t0))
-#     else:
-#       break
-#   log.warn("Discovery thread killed")
