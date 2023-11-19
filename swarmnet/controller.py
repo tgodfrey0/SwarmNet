@@ -36,8 +36,8 @@ class SwarmNet:
     self.swarm_list_lock = threading.Lock()
     self.received_ids = []
     self.received_ids_lock = threading.Lock()
-    self.rx_queue = queue.Queue()
-    self.tx_queue = queue.Queue()
+    self.rx_queue = queue.Queue(128)
+    self.tx_queue = queue.Queue(32)
     self.parser = parser.Parser(self.fn_map, self.rx_queue)
     self.receiver = receiver.Receiver(self.addr, self.port, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
     self.sender = sender.Sender(self.addr, self.port, self.tx_queue)
