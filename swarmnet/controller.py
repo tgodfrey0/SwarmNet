@@ -141,7 +141,8 @@ def parse_thread_target(ctrl: SwarmNet):
     
 def receiver_thread_target(ctrl: SwarmNet):
   while(not ctrl.receiver_thread_exit_request):
-    ctrl.receiver.control_receiver(ctrl.receiver_thread_exit_request)
+    # ctrl.receiver.control_receiver(ctrl.receiver_thread_exit_request)
+    ctrl.receiver.accept_connection()
   log.warn("Receiver thread killed")
     
 def sender_thread_target(ctrl: SwarmNet):

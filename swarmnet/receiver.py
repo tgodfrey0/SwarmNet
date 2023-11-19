@@ -21,7 +21,7 @@ class Receiver:
     self.listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.listener.bind((addr, port))
     self.listener.listen()
-    self.listener.settimeout(10)
+    self.listener.settimeout(5)
     # self.listener = socketserver.TCPServer((addr, port), self.Handler)
     self.received = received
     self.register_received = register_received
