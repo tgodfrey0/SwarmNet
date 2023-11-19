@@ -31,7 +31,6 @@ class Broadcaster:
     for addr_end in range(2,128):
         if(str(addr_end) == self.self_addr.split(".")[3]):
           continue
-        print(addr_end)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(1)
         try:
@@ -46,7 +45,6 @@ class Broadcaster:
     for addr_end in range(128,255):
         if(str(addr_end) == self.self_addr.split(".")[3]):
           continue
-        print(addr_end)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(1)
         try:
