@@ -13,8 +13,7 @@ class Sender:
     self.self_addr = self_addr
     log.success("SwarmNet sender started")
     
-  def flush_queue(self, devices: List[str]):
-    print("here")
+  def flush_queue(self):
     while(not self.tx.empty()):
       msg = self.tx.get()
       log.info(f"Sending message: {msg}")
