@@ -39,7 +39,7 @@ class SwarmNet:
     self.rx_queue = queue.Queue()
     self.tx_queue = queue.Queue()
     self.parser = parser.Parser(self.fn_map, self.rx_queue)
-    self.receiver = receiver.Receiver(self.has_seen_message, self.append_seen_messages, self.port, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
+    self.receiver = receiver.Receiver(self.addr, self.port, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
     self.sender = sender.Sender(self.addr, self.port, self.tx_queue)
     
     # self.discovery_thread = threading.Thread(target=discovery_thread_target, args=[self])
@@ -68,7 +68,7 @@ class SwarmNet:
     self.receiver_thread_exit_request = True
     self.sender_thread_exit_request = True
     
-    self.discovery_thread.join()
+    # self.discovery_thread.join()
     self.parse_thread.join()
     self.receiver_thread.join()
     self.sender_thread.join()

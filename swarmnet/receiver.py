@@ -6,10 +6,11 @@ import swarmnet.logger as logger
 log = logger.Logger("receiver")
 
 class Receiver:
-  def __init__(self, received: Callable[[str], bool], register_received: Callable[[str], None], port: int, rx_queue: queue.Queue, tx_queue: queue.Queue):
+  def __init__(self, addr: str, port: int, received: Callable[[str], bool], register_received: Callable[[str], None], rx_queue: queue.Queue, tx_queue: queue.Queue):
     self.listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.listener.bind(('localhost', port))
+    self.listener.bind((addr, port))
     self.listener.listen()
+    self.listener.settimeout(10)
     self.received = received
     self.register_received = register_received
     self.rx = rx_queue
@@ -19,8 +20,11 @@ class Receiver:
     log.success("SwarmNet receiver started")
     
   def accept_connection(self) -> None:
-    print("IN FUNC")
-    client_sock, client_info = self.listener.accept() # This waits indefinitely 
+    try:
+      client_sock, client_info = self.listener.accept() # This waits indefinitely 
+    except TimeoutError:
+      return
+    
     logger.info(f"Connection received")
 
     full_data = ""
