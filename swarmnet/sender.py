@@ -20,10 +20,11 @@ class Sender:
       for addr in range(2,255):
         if(str(addr) == self.self_addr.split(".")[3]):
           continue
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        print(addr)
         sock.settimeout(10)
-        sock.connect((f"192.168.0.{addr}", self.port))
-        sock.send(msg)
-        sock.sendall(bytes(msg + "\n", "utf-8"))
+        # soc.connect((f"192.168.0.{addr}", self.port))
+        # soc.send(msg)
+        sock.sendto(bytes(msg + "\n", "utf-8"), (f"192.168.0.{addr}", self.port))
         sock.close()
       log.success("Message sent to all devices on the network")

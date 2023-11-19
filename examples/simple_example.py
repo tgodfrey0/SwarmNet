@@ -7,10 +7,8 @@ def out(s: typing.Optional[str]) -> None:
 if __name__=="__main__":
   controller = SwarmNet({"TEXT": out})
   controller.start()
-  input("")
-  print("A")
+  input("Press any key to send a message")
   controller.send("TEXT hello world!")
-  print("B")
-  input("")
+  input("Press any key to kill all threads")
   controller.kill()
   
