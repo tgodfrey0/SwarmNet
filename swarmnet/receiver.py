@@ -10,6 +10,7 @@ class Receiver:
   class Handler(socketserver.StreamRequestHandler):
     def handle(self):
       msg = self.rfile.readline().strip().decode("utf-8")
+      logger.info(f"Message received: {msg}")
       parts = msg.split(":", 1)
       if not self.received(parts[0]):
         super.rx.put(parts[1])

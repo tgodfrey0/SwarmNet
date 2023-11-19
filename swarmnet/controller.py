@@ -18,7 +18,7 @@ class SwarmNet:
                mapping: Dict[str, Callable[[Optional[str]], None]], 
                device_retries: int = 3, 
                device_refresh_interval: int = 60,
-               port: int = 9999):
+               port: int = 51000):
     self.fn_map = mapping
     self.discovery_retries = device_retries
     self.discovery_interval = device_refresh_interval
