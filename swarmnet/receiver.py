@@ -42,7 +42,7 @@ class Receiver:
     except TimeoutError:
       return
     
-    logger.info(f"Connection received")
+    log.info(f"Connection received")
 
     full_data = ""
     try:
