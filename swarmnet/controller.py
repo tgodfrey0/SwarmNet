@@ -1,7 +1,7 @@
 import threading
 import socket
 import queue
-from typing import Callable, Optional, List, Dict
+from typing import Callable, Optional, List, Dict, Tuple
 import time
 import math
 
@@ -32,20 +32,16 @@ class SwarmNet:
     log.success("SwarmNet controller started")
     
   def start(self) -> None:
-    self.swarm_list = []
+    self.swarm_list: List[Tuple[str, str]] = []
     self.swarm_list_lock = threading.Lock()
     self.received_ids = []
     self.received_ids_lock = threading.Lock()
     self.rx_queue = queue.Queue(128)
     self.tx_queue = queue.Queue(32)
+    self.fn_map["JOIN"] = self._register_new_member
     self.parser = parser.Parser(self.fn_map, self.rx_queue)
     self.receiver = receiver.Receiver(self.addr, self.port, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
-    self.sender = sender.Sender(self.addr, self.port, self.tx_queue)
-    
-    # self.discovery_thread = threading.Thread(target=discovery_thread_target, args=[self])
-    # self.discovery_thread_exit_request = False
-    # self.discovery_thread.start()
-    # log.info("Discovery thread started")
+    self.sender = sender.Sender(self.addr, self.tx_queue, self.remove_device)
     
     self.parse_thread = threading.Thread(target=parse_thread_target, args=[self])
     self.parse_thread_exit_request = False
@@ -62,10 +58,7 @@ class SwarmNet:
     self.sender_thread.start()
     log.info("Sender thread started")
     
-    #TODO: Register with a JOIN command and the address and port
-    #TODO: JOIN ADDR PORT
-    #TODO: Add a join parser to the dictionary
-    #TODO: Store in a list and pass to the sender
+    self.send(f"JOIN {self.addr} {self.port}")
     
   def kill(self) -> None:
     self.discovery_thread_exit_request = True
@@ -73,33 +66,39 @@ class SwarmNet:
     self.receiver_thread_exit_request = True
     self.sender_thread_exit_request = True
     
-    # self.discovery_thread.join()
     self.parse_thread.join()
     self.receiver_thread.join()
     self.sender_thread.join()
     
     log.warn("All threads have been killed")
-  
-  def _update_device_list(self) -> None:
-    for _ in range(0, self.discovery_retries):
-      ds = discovery.discover_swarm_devices()
-      if ds != {}:
-        self.set_devices(ds)
-        return;
-      log.info("Retrying swarm discovery")
     
-    log.error(f"Retry limit ({self.discovery_retries}) reached during swarm discovery")
+  def _register_new_member(self, msg: Optional[str]) -> None:
+    addr = msg.split(" ", 1)[0]
+    port = msg.split(" ", 1)[0]
+    self.add_device((addr, port))
       
-  def get_devices(self) -> List[str]:
+  def get_devices(self) -> List[Tuple[str, str]]:
     self.swarm_list_lock.acquire()
     ds = self.swarm_list
     self.swarm_list_lock.release()
     return ds
   
-  def set_devices(self, ds: List[str]) -> None:
+  def set_devices(self, ds: List[Tuple[str, str]]) -> None:
     self.swarm_list_lock.acquire()
     self.swarm_list = ds
     self.swarm_list_lock.release()
+    
+  def add_device(self, d: Tuple[str, str]) -> None:
+    self.swarm_list_lock.acquire()
+    self.swarm_list.append(d)
+    self.swarm_list_lock.release()
+    logger.info(f"New device added at {d[0]}:{d[1]}")
+    
+  def remove_device(self, d: Tuple[str, str]) -> None:
+    self.swarm_list_lock.acquire()
+    self.swarm_list.remove(d)
+    self.swarm_list_lock.release()
+    logger.warn(f"Device removed at {d[0]}:{d[1]}")
     
   def get_seen_messages(self) -> List[str]:
     self.received_ids_lock.acquire()
@@ -141,27 +140,26 @@ def parse_thread_target(ctrl: SwarmNet):
     
 def receiver_thread_target(ctrl: SwarmNet):
   while(not ctrl.receiver_thread_exit_request):
-    # ctrl.receiver.control_receiver(ctrl.receiver_thread_exit_request)
     ctrl.receiver.accept_connection()
   log.warn("Receiver thread killed")
     
 def sender_thread_target(ctrl: SwarmNet):
   while(not ctrl.sender_thread_exit_request):
     if not ctrl.tx_queue.empty():
-      ctrl.sender.flush_queue()
+      ctrl.sender.flush_queue(ctrl.get_devices())
     else:
       time.sleep(0.01)
   log.warn("Sender thread killed") 
     
-def discovery_thread_target(ctrl: SwarmNet):
-  while(1):
-    # Update every 60 seconds
-    if not ctrl.discovery_thread_exit_request:
-      t0 = time.time()
-      ctrl._update_device_list()
-      t1 = time.time()
-    elif not ctrl.discovery_thread_exit_request:
-      time.sleep(ctrl.discovery_interval - (t1 - t0))
-    else:
-      break
-  log.warn("Discovery thread killed")
+# def discovery_thread_target(ctrl: SwarmNet):
+#   while(1):
+#     # Update every 60 seconds
+#     if not ctrl.discovery_thread_exit_request:
+#       t0 = time.time()
+#       ctrl._update_device_list()
+#       t1 = time.time()
+#     elif not ctrl.discovery_thread_exit_request:
+#       time.sleep(ctrl.discovery_interval - (t1 - t0))
+#     else:
+#       break
+#   log.warn("Discovery thread killed")

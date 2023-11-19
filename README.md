@@ -14,5 +14,5 @@ All messages follow the format: `<CMD> <DATA1> <DATA2> ...`
 
 A dictionary that maps command tokens to functions is passed to the `SwarmNet` constructor. The signature of this map is `Dict[str, Callable[[Optional[str]], None]]` where the `str` passed to the parser function is the rest of the message string (if any)
 
-Internally, every message is prefixed with an identifier which is not overwritten when the message is forwarded by receivers. This means agents will not parse their own message or parse the same message more than once.
+Internally, every message is prefixed with an identifier that is not overwritten when the message is forwarded by receivers. This means agents will not parse their own message or parse the same message more than once.
 
