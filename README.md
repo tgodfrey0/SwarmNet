@@ -6,6 +6,8 @@ A Bluetooth-based, robust communications library for robot swarms. This is based
 
 A `SwarmNet` object must be created that handles all of the communication. Only one instance should be created. To start the communication framework, the `start()` method must be run.
 
+**All devices must use the same port number**
+
 This `start()` command will broadcast a JOIN command to register with the rest of the swarm. 
 
 ## Message Format

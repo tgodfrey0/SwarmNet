@@ -18,23 +18,23 @@ class SwarmNet:
                mapping: Dict[str, Callable[[Optional[str]], None]], 
                device_retries: int = 3, 
                device_refresh_interval: int = 60,
-               port: int = 51000,
-               broadcast_port: int = 51001):
+               port: int = 51000):
     self.fn_map = mapping
     self.discovery_retries = device_retries
     self.discovery_interval = device_refresh_interval
     self.port = port
-    self.broadcast_port = broadcast_port
+    
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 1))
     self.addr = s.getsockname()[0]
     s.close()
+    
     log.info(f"This address is {self.addr}:{self.port}")
     
     log.success("SwarmNet controller started")
     
   def start(self) -> None:
-    self.swarm_list: List[Tuple[str, str]] = []
+    self.swarm_list: List[Tuple[str, int]] = []
     self.swarm_list_lock = threading.Lock()
     self.received_ids = []
     self.received_ids_lock = threading.Lock()
@@ -44,7 +44,7 @@ class SwarmNet:
     self.parser = parser.Parser(self.fn_map, self.rx_queue)
     self.receiver = receiver.Receiver(self.addr, self.port, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
     self.sender = sender.Sender(self.addr, self.tx_queue, self.remove_device)
-    self.broadcaster = broadcaster.Broadcaster(self.broadcast_port, self.add_device)
+    self.broadcaster = broadcaster.Broadcaster(self.addr, self.port, self.rx_queue, self.add_device)
     
     self.parse_thread = threading.Thread(target=parse_thread_target, args=[self])
     self.parse_thread_exit_request = False
@@ -61,11 +61,6 @@ class SwarmNet:
     self.sender_thread.start()
     log.info("Sender thread started")
     
-    self.broadcaster_thread = threading.Thread(target=broadcaster_thread_target, args=[self])
-    self.broadcaster_thread_exit_request = False
-    self.broadcaster_thread.start()
-    log.info("Broadcaster thread started")
-    
     self.broadcast(f"JOIN {self.addr} {self.port}")
     
   def kill(self) -> None:
@@ -77,7 +72,6 @@ class SwarmNet:
     self.parse_thread.join()
     self.receiver_thread.join()
     self.sender_thread.join()
-    self.broadcaster_thread.join
     
     log.warn("All threads have been killed")
     
@@ -86,28 +80,28 @@ class SwarmNet:
     port = msg.split(" ", 1)[0]
     self.add_device((addr, port))
       
-  def get_devices(self) -> List[Tuple[str, str]]:
+  def get_devices(self) -> List[Tuple[str, int]]:
     self.swarm_list_lock.acquire()
     ds = self.swarm_list
     self.swarm_list_lock.release()
     return ds
   
-  def set_devices(self, ds: List[Tuple[str, str]]) -> None:
+  def set_devices(self, ds: List[Tuple[str, int]]) -> None:
     self.swarm_list_lock.acquire()
     self.swarm_list = ds
     self.swarm_list_lock.release()
     
-  def add_device(self, d: Tuple[str, str]) -> None:
+  def add_device(self, d: Tuple[str, int]) -> None:
     self.swarm_list_lock.acquire()
     self.swarm_list.append(d)
     self.swarm_list_lock.release()
-    logger.info(f"New device added at {d[0]}:{d[1]}")
+    log.info(f"New device added at {d[0]}:{d[1]}")
     
-  def remove_device(self, d: Tuple[str, str]) -> None:
+  def remove_device(self, d: Tuple[str, int]) -> None:
     self.swarm_list_lock.acquire()
     self.swarm_list.remove(d)
     self.swarm_list_lock.release()
-    logger.warn(f"Device removed at {d[0]}:{d[1]}")
+    log.warn(f"Device removed at {d[0]}:{d[1]}")
     
   def get_seen_messages(self) -> List[str]:
     self.received_ids_lock.acquire()
@@ -156,11 +150,7 @@ def receiver_thread_target(ctrl: SwarmNet):
   while(not ctrl.receiver_thread_exit_request):
     ctrl.receiver.accept_connection()
   log.warn("Receiver thread killed")
-  
-def broadcaster_thread_target(ctrl: SwarmNet):
-  while(not ctrl.broadcaster_thread_exit_request):
-    ctrl.broadcaster.listen_broadcast()
-  log.warn("Broadcaster thread killed")
+
     
 def sender_thread_target(ctrl: SwarmNet):
   while(not ctrl.sender_thread_exit_request):
