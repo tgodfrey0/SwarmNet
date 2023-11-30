@@ -6,8 +6,7 @@
 !requirements.txt
 !enable_slave.sh
 
-!swarmnet/
-!swarmnet/*.py
+!*.py
 
 !examples
 !examples/*.py

@@ -1,4 +1,4 @@
-from swarmnet.controller import SwarmNet
+from swarmnet import SwarmNet
 
 
 if __name__=="__main__":
