@@ -7,6 +7,8 @@ from .logger import *
 
 log = Logger("broadcaster")
 
+TIMEOUT = 0.5
+
 class Broadcaster:
   def __init__(self, self_addr: str, port: int, rx: queue.Queue, add_device_fn: Callable[[Tuple[str, int]], None]):
     self.self_addr = self_addr
@@ -33,7 +35,7 @@ class Broadcaster:
         if(str(addr_end) == self.self_addr.split(".")[3]):
           continue
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
+        sock.settimeout(TIMEOUT)
         try:
           sock.connect((f"192.168.0.{addr_end}", self.port))
           sock.send(bytes(msg + "\n", "utf-8"))
@@ -47,7 +49,7 @@ class Broadcaster:
         if(str(addr_end) == self.self_addr.split(".")[3]):
           continue
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
+        sock.settimeout(TIMEOUT)
         try:
           sock.connect((f"192.168.0.{addr_end}", self.port))
           sock.send(bytes(msg + "\n", "utf-8"))
