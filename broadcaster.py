@@ -2,9 +2,10 @@ import socket
 import queue
 import threading
 from typing import Callable, Tuple
-import logger
 
-log = logger.Logger("broadcaster")
+from .logger import *
+
+log = Logger("broadcaster")
 
 class Broadcaster:
   def __init__(self, self_addr: str, port: int, rx: queue.Queue, add_device_fn: Callable[[Tuple[str, int]], None]):

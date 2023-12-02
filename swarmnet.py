@@ -5,13 +5,13 @@ from typing import Callable, Optional, List, Dict, Tuple
 import time
 import math
 
-import logger
-import broadcaster
-import parser
-import receiver
-import sender
+from .logger import *
+from .broadcaster import *
+from .parser import *
+from .receiver import *
+from .sender import *
 
-log = logger.Logger("controller")
+log = Logger("controller")
 
 class SwarmNet:
   def __init__(self, 
@@ -41,10 +41,10 @@ class SwarmNet:
     self.rx_queue = queue.Queue(128)
     self.tx_queue = queue.Queue(32)
     self.fn_map["JOIN"] = self._register_new_member
-    self.parser = parser.Parser(self.fn_map, self.rx_queue)
-    self.receiver = receiver.Receiver(self.addr, self.port, self.add_device, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
-    self.sender = sender.Sender(self.addr, self.tx_queue, self.remove_device)
-    self.broadcaster = broadcaster.Broadcaster(self.addr, self.port, self.rx_queue, self.add_device)
+    self.parser = Parser(self.fn_map, self.rx_queue)
+    self.receiver = Receiver(self.addr, self.port, self.add_device, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
+    self.sender = Sender(self.addr, self.tx_queue, self.remove_device)
+    self.broadcaster = Broadcaster(self.addr, self.port, self.rx_queue, self.add_device)
     
     self.parse_thread = threading.Thread(target=parse_thread_target, args=[self])
     self.parse_thread_exit_request = False
@@ -127,7 +127,7 @@ class SwarmNet:
     self.received_ids_lock.release()
     return b
   
-  def set_log_level(lv: logger.Logger.Log_Level) -> None:
+  def set_log_level(lv: Logger.Log_Level) -> None:
     log.set_log_level(lv)
     
   def _calc_header(self) -> str:

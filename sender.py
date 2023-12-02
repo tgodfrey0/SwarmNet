@@ -2,9 +2,9 @@ import socket
 import queue
 from typing import List, Tuple, Callable
 
-import logger
+from .logger import *
 
-log = logger.Logger("sender")
+log = Logger("sender")
 
 class Sender:
   def __init__(self, self_addr: str, tx_queue: queue.Queue, remove_device_fn: Callable[[Tuple[str, int]], None]):
