@@ -5,11 +5,11 @@ from typing import Callable, Optional, List, Dict, Tuple
 import time
 import math
 
-import swarmnet.logger as logger
-import swarmnet.broadcaster as broadcaster
-import swarmnet.parser as parser
-import swarmnet.receiver as receiver
-import swarmnet.sender as sender
+import logger
+import broadcaster
+import parser
+import receiver
+import sender
 
 log = logger.Logger("controller")
 
