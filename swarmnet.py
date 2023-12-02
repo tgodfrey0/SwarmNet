@@ -61,6 +61,7 @@ class SwarmNet:
     self.sender_thread.start()
     log.info("Sender thread started")
     
+    print("Beginning broadcast of JOIN command")
     self.broadcast(f"JOIN {self.addr} {self.port}")
     
   def kill(self) -> None:
