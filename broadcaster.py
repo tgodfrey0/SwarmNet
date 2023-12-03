@@ -3,9 +3,9 @@ import queue
 import threading
 from typing import Callable, Tuple
 
-from logger import *
+import logger
 
-log = Logger("broadcaster")
+log = logger.Logger("broadcaster")
 
 TIMEOUT = 0.5
 

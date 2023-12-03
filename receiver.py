@@ -2,9 +2,9 @@ import queue
 import socket
 from typing import Callable, Tuple
 
-from logger import *
+import logger
 
-log = Logger("receiver")
+log = logger.Logger("receiver")
 
 class Receiver:
   def __init__(self, addr: str, port: int, add_device: Callable[[Tuple[str, int]], None], received: Callable[[str], bool], register_received: Callable[[str], None], rx_queue: queue.Queue, tx_queue: queue.Queue):
