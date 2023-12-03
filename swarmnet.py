@@ -5,11 +5,11 @@ from typing import Callable, Optional, List, Dict, Tuple
 import time
 import math
 
-import swarmnet.logger as logger
-import swarmnet.broadcaster as broadcaster
-import swarmnet.parser as parser
-import swarmnet.receiver as receiver
-import swarmnet.sender as sender
+import logger
+import broadcaster
+import parser
+import receiver
+import sender
 
 log = logger.Logger("controller")
 
@@ -95,6 +95,10 @@ class SwarmNet:
     if(d[0] == self.addr):
       return
     self.swarm_list_lock.acquire()
+    
+    if(d in self.swarm_list):
+      return
+    
     self.swarm_list.append(d)
     self.swarm_list_lock.release()
     log.info(f"New device added at {d[0]}:{d[1]}")

@@ -2,7 +2,7 @@ import socket
 import queue
 import threading
 from typing import Callable, Tuple
-import swarmnet.logger as logger
+import logger
 
 log = logger.Logger("broadcaster")
 
