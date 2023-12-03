@@ -2,11 +2,11 @@ import threading
 import queue
 from typing import Optional, Callable, Dict
 
-from .logger import *
+from logger import *
 
 log = Logger("parser")
 
-class Parser:
+class MessageParser:
   def __init__(self, mapping: Dict[str, Callable[[Optional[str]], None]], q: queue.Queue):
     self.fn_map = mapping
     self.msg_queue = q

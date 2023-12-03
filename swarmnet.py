@@ -3,13 +3,12 @@ import socket
 import queue
 from typing import Callable, Optional, List, Dict, Tuple
 import time
-import math
 
-from .logger import *
-from .broadcaster import *
-from .parser import *
-from .receiver import *
-from .sender import *
+from logger import *
+from broadcaster import *
+from msg_parser import *
+from receiver import *
+from sender import *
 
 log = Logger("controller")
 
@@ -41,7 +40,7 @@ class SwarmNet:
     self.rx_queue = queue.Queue(128)
     self.tx_queue = queue.Queue(32)
     self.fn_map["JOIN"] = self._register_new_member
-    self.parser = Parser(self.fn_map, self.rx_queue)
+    self.parser = MessageParser(self.fn_map, self.rx_queue)
     self.receiver = Receiver(self.addr, self.port, self.add_device, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
     self.sender = Sender(self.addr, self.tx_queue, self.remove_device)
     self.broadcaster = Broadcaster(self.addr, self.port, self.rx_queue, self.add_device)
