@@ -2,9 +2,9 @@ import threading
 import queue
 from typing import Optional, Callable, Dict
 
-import logger
+from .logger import *
 
-log = logger.Logger("parser")
+log = Logger("parser")
 
 class Parser:
   def __init__(self, mapping: Dict[str, Callable[[Optional[str]], None]], q: queue.Queue):

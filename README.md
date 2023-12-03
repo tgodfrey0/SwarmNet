@@ -1,6 +1,6 @@
 # SwarmNet
 
-A Bluetooth-based, robust communications library for robot swarms. This is based on gossip protocols where the message will propagate around the swarm. When an agent receives a message it has not seen before, it will broadcast it to all other members of the swarm. 
+A robust communications library for robot swarms. This is based on gossip protocols where the message will propagate around the swarm. When an agent receives a message it has not seen before, it will broadcast it to all other members of the swarm. 
 
 ## Usage
 
