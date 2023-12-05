@@ -3,7 +3,7 @@ import queue
 import threading
 from typing import Callable, Tuple
 
-import logger
+from . import logger
 
 log = logger.Logger("broadcaster")
 

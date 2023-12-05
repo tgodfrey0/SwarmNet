@@ -2,7 +2,7 @@ import queue
 import socket
 from typing import Callable, Tuple
 
-import logger
+from . import logger
 
 log = logger.Logger("receiver")
 

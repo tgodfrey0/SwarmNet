@@ -2,7 +2,7 @@ import threading
 import queue
 from typing import Optional, Callable, Dict
 
-import logger
+from . import logger
 
 log = logger.Logger("parser")
 

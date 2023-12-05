@@ -4,11 +4,11 @@ import queue
 from typing import Callable, Optional, List, Dict, Tuple
 import time
 
-import logger
-import broadcaster
-import msg_parser
-import receiver
-import sender
+from . import logger
+from . import broadcaster
+from . import msg_parser
+from . import receiver
+from . import sender
 
 log = logger.Logger("controller")
 
