@@ -2,6 +2,8 @@ from enum import Enum
 import datetime
 
 class Logger:
+  printer_fn = print
+  
   class Colour_Code(Enum):
     ENDC      = '\033[0m'
     BOLD      = '\033[1m'
@@ -26,16 +28,16 @@ class Logger:
     self.name = name
       
   def _log_normal(self, s: str, c: Colour_Code) -> None:
-    print(f"{c.value}[{self.name}: {datetime.datetime.now()}] {s}{self.Colour_Code.ENDC.value}")
+    Logger.printer_fn(f"{c.value}[{self.name}: {datetime.datetime.now()}] {s}{self.Colour_Code.ENDC.value}")
     
   def _log_bold(self, s: str, c: Colour_Code) -> None:
-    print(f"{self.Colour_Code.BOLD.value}{c.value}[{self.name}: {datetime.datetime.now()}] {s}{self.Colour_Code.ENDC.value}")
+    Logger.printer_fn(f"{self.Colour_Code.BOLD.value}{c.value}[{self.name}: {datetime.datetime.now()}] {s}{self.Colour_Code.ENDC.value}")
     
   def _log_underlined(self, s: str, c: Colour_Code) -> None:
-    print(f"{self.Colour_Code.UNDERLINE.value}{c.value}[{self.name}: {datetime.datetime.now()}] {s}{self.Colour_Code.ENDC.value}")
+    Logger.printer_fn(f"{self.Colour_Code.UNDERLINE.value}{c.value}[{self.name}: {datetime.datetime.now()}] {s}{self.Colour_Code.ENDC.value}")
     
   def _log_bold_underlined(self, s: str, c: Colour_Code) -> None:
-    print(f"{self.Colour_Code.BOLD.value}{self.Colour_Code.UNDERLINE.value}{c.value}[{self.name}: {datetime.datetime.now()}] {s}{self.Colour_Code.ENDC.value}")
+    Logger.printer_fn(f"{self.Colour_Code.BOLD.value}{self.Colour_Code.UNDERLINE.value}{c.value}[{self.name}: {datetime.datetime.now()}] {s}{self.Colour_Code.ENDC.value}")
     
   def info(self, s: str) -> None:
     if(self.log_level.value <= self.Log_Level.INFO.value):
@@ -61,6 +63,8 @@ class Logger:
     if(self.log_level.value <= self.Log_Level.CRITICAL.value):
       self._log_bold_underlined(s, self.Colour_Code.RED)
       
-      
 def set_log_level(l: Logger.Log_Level):
   Logger.log_level = l
+  
+def set_printer(fn):
+  Logger.printer_fn = fn

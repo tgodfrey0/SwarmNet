@@ -143,6 +143,9 @@ class SwarmNet:
     self.append_seen_messages(header)
     self.broadcaster.broadcast(f"{header}:{msg}")
     
+  def set_logger_fn(self, fn):
+    logger.set_printer = fn
+    
 def parse_thread_target(ctrl: SwarmNet):
   while(not ctrl.parse_thread_exit_request):
     if not ctrl.rx_queue.empty():
