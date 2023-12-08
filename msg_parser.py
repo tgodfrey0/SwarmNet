@@ -2,11 +2,11 @@ import threading
 import queue
 from typing import Optional, Callable, Dict
 
-import swarmnet.logger as logger
+from . import logger
 
 log = logger.Logger("parser")
 
-class Parser:
+class MessageParser:
   def __init__(self, mapping: Dict[str, Callable[[Optional[str]], None]], q: queue.Queue):
     self.fn_map = mapping
     self.msg_queue = q

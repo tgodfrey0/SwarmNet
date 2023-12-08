@@ -3,13 +3,12 @@ import socket
 import queue
 from typing import Callable, Optional, List, Dict, Tuple
 import time
-import math
 
-import swarmnet.logger as logger
-import swarmnet.broadcaster as broadcaster
-import swarmnet.parser as parser
-import swarmnet.receiver as receiver
-import swarmnet.sender as sender
+from . import logger
+from . import broadcaster
+from . import msg_parser
+from . import receiver
+from . import sender
 
 log = logger.Logger("controller")
 
@@ -41,7 +40,7 @@ class SwarmNet:
     self.rx_queue = queue.Queue(128)
     self.tx_queue = queue.Queue(32)
     self.fn_map["JOIN"] = self._register_new_member
-    self.parser = parser.Parser(self.fn_map, self.rx_queue)
+    self.parser = msg_parser.MessageParser(self.fn_map, self.rx_queue)
     self.receiver = receiver.Receiver(self.addr, self.port, self.add_device, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
     self.sender = sender.Sender(self.addr, self.tx_queue, self.remove_device)
     self.broadcaster = broadcaster.Broadcaster(self.addr, self.port, self.rx_queue, self.add_device)
@@ -61,6 +60,7 @@ class SwarmNet:
     self.sender_thread.start()
     log.info("Sender thread started")
     
+    log.info_header("Beginning broadcast of JOIN command")
     self.broadcast(f"JOIN {self.addr} {self.port}")
     
   def kill(self) -> None:
@@ -95,6 +95,10 @@ class SwarmNet:
     if(d[0] == self.addr):
       return
     self.swarm_list_lock.acquire()
+    
+    if(d in self.swarm_list):
+      return
+    
     self.swarm_list.append(d)
     self.swarm_list_lock.release()
     log.info(f"New device added at {d[0]}:{d[1]}")

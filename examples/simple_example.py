@@ -1,4 +1,4 @@
-from swarmnet.controller import SwarmNet
+from swarmnet import SwarmNet
 import typing
 
 def out(s: typing.Optional[str]) -> None:
