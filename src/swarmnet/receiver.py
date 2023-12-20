@@ -43,7 +43,6 @@ class Receiver:
     except OSError:
       pass
     
-    #TODO: Add new devices to list
     parts = full_data.split(":", 1)
     
     ip = parts[0].split("/", 2)[1]
