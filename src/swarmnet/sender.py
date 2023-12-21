@@ -26,7 +26,7 @@ class Sender:
           sock.connect((addr, port))
           sock.send(bytes(msg + "\n", "utf-8"))
         except OSError:
+          log.error(f"Failed to send message to {addr}")
           self.remove_dev((addr, port))
-          raise
         sock.close()
       log.success("Message sent to all swarm devices")

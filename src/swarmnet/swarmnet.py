@@ -118,6 +118,9 @@ class SwarmNet:
     log.info(f"New device added at {d[0]}:{d[1]}")
     
   def remove_device(self, d: Tuple[str, int]) -> None:
+    if(self.fixed_list):
+      return
+    
     self.swarm_list_lock.acquire()
     self.swarm_list.remove(d)
     self.swarm_list_lock.release()
