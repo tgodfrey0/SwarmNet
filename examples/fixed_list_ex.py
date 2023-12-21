@@ -34,6 +34,6 @@ if __name__=="__main__":
     ctrl.send("READY")
     sleep(1)
   
-  ctrl.send("TEXT hello world")#
+  ctrl.send("TEXT hello world")
   print("Finished")
   ctrl.kill()
