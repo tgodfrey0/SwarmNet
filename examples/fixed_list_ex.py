@@ -28,7 +28,7 @@ if __name__=="__main__":
   ctrl = swarmnet.SwarmNet({"TEXT": text_recv, "READY": ready_recv}, device_list=[("192.168.0.120", 51000), ("192.168.0.121", 51000)])
   ctrl.start()
   
-  while(get_cont()):
+  while(not get_cont()):
     ctrl.send("READY")
   
   ctrl.send("TEXT hello world")
