@@ -10,7 +10,7 @@ log = logger.Logger("broadcaster")
 TIMEOUT = 0.5
 
 class Broadcaster:
-  def __init__(self, self_addr: str, port: int, rx: queue.Queue, add_device_fn: Callable[[Tuple[str, int]], None], fixed_list: bool = False, devices: List[Tuple[str, int]] = []):
+  def __init__(self, self_addr: str, port: int, rx: queue.Queue, add_device_fn: Callable[[Tuple[str, int]], None], fixed_list: bool, devices: List[Tuple[str, int]]):
     self.self_addr = self_addr
     self.port = port
     self.rx = rx

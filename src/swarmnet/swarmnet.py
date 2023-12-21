@@ -27,6 +27,7 @@ class SwarmNet:
     if(device_list != []):
       self.fixed_list = True
       self.swarm_list: List[Tuple[str, int]] = device_list
+      log.info("Static device list provided")
     else:
       self.fixed_list = False
       self.swarm_list: List[Tuple[str, int]] = []
@@ -50,7 +51,7 @@ class SwarmNet:
     self.parser = msg_parser.MessageParser(self.fn_map, self.rx_queue)
     self.receiver = receiver.Receiver(self.addr, self.port, self.add_device, self.has_seen_message, self.append_seen_messages, rx_queue=self.rx_queue, tx_queue=self.tx_queue)
     self.sender = sender.Sender(self.addr, self.tx_queue, self.remove_device)
-    self.broadcaster = broadcaster.Broadcaster(self.addr, self.port, self.rx_queue, self.add_device)
+    self.broadcaster = broadcaster.Broadcaster(self.addr, self.port, self.rx_queue, self.add_device, self.fixed_list, self.swarm_list)
     
     self.parse_thread = threading.Thread(target=parse_thread_target, args=[self])
     self.parse_thread_exit_request = False
