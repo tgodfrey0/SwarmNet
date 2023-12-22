@@ -27,3 +27,9 @@ class MessageParser:
       
     except KeyError:
       log.error(f"No registered parser for command {cmd}")
+      log.error("Registered parsers exist for commands:")
+      for c in self.fn_map.keys():
+        if(c == "JOIN"):
+          continue
+        
+        log.error(c)
