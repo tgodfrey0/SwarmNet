@@ -32,7 +32,9 @@ if __name__=="__main__":
   
   while(not get_cont()):
     ctrl.send("READY")
-    sleep(1)
+    #sleep(0.5)
+    
+  ctrl.clear_rx_queue()
   
   ctrl.send("TEXT hello world")
   print("Finished")
