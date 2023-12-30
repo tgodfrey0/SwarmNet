@@ -14,7 +14,7 @@ class MessageParser:
   
   def parse_msg(self) -> None:
     msg: str = self.msg_queue.get(block=True).split(' ', 1)
-    cmd: str = msg[0]
+    cmd: str = msg[0].strip()
     data: Optional[str] = None
     
     if len(msg) > 1:
