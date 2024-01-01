@@ -31,8 +31,6 @@ class Receiver:
     except TimeoutError:
       return
     
-    log.info(f"Connection received")
-
     full_data: str = ""
     try:
       while True:

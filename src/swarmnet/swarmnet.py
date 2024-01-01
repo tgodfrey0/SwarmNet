@@ -201,14 +201,6 @@ class SwarmNet:
     b = m in self.received_ids
     self.received_ids_lock.release()
     return b
-  
-  """!
-  @brief Set the logging level
-  
-  @param lv The minimum log level to output
-  """
-  def set_log_level(lv: logger.Logger.Log_Level) -> None:
-    log.set_log_level(lv)
     
   def _calc_header(self) -> str:
     return f"{time.time()}/{self.addr}/{self.port}"
@@ -256,3 +248,10 @@ def _sender_thread_target(ctrl: SwarmNet):
       time.sleep(0.01)
   log.warn("Sender thread killed") 
     
+"""!
+@brief Set the logging level
+
+@param lv The minimum log level to output
+"""
+def set_log_level(lv: logger.Log_Level) -> None:
+  logger.set_log_level(lv)
