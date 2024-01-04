@@ -2,6 +2,7 @@ import threading
 import socket
 import queue
 from typing import Callable, Optional, List, Dict, Tuple
+from typing_extensions import Self
 import time
 
 from . import logger
@@ -13,6 +14,7 @@ from . import sender
 log = logger.Logger("controller")
 
 class SwarmNet:
+  instance: Optional[Self] = None
   
   """!
   @brief SwarmNet controller constructor
@@ -27,10 +29,15 @@ class SwarmNet:
               #  device_refresh_interval: int = 60,
                port: int = 51000,
                device_list: List[Tuple[str, int]] = []):
+    
+    if(SwarmNet.instance is not None):
+      log.critical("Only one instance of SwarmNet can be exist at one time")  
+    else:
+      SwarmNet.instance = self
+      
     self.fn_map = mapping
-    # self.discovery_retries = device_retries
-    # self.discovery_interval = device_refresh_interval
     self.port = port
+    self._started = False
     
     if(device_list != []):
       self.fixed_list = True
@@ -53,6 +60,9 @@ class SwarmNet:
   @brief Starts the required threads
   """  
   def start(self) -> None:
+    if(self._started):
+      log.error("SwarmNet instance already started")
+      
     self.swarm_list_lock = threading.Lock()
     self.received_ids = []
     self.received_ids_lock = threading.Lock()
@@ -79,6 +89,8 @@ class SwarmNet:
     self.sender_thread.start()
     log.info("Sender thread started")
     
+    self._started = True
+    
     log.info_header("Beginning broadcast of JOIN command")
     self.broadcast(f"JOIN {self.addr} {self.port}")
     
@@ -86,6 +98,10 @@ class SwarmNet:
   @brief Kills all threads in a safe way
   """
   def kill(self) -> None:
+    if(not self._started):
+      log.critical("SwarmNet must be started before use")
+      return
+    
     self.broadcaster_thread_exit_request = True
     self.parse_thread_exit_request = True
     self.receiver_thread_exit_request = True
@@ -96,22 +112,35 @@ class SwarmNet:
     self.sender_thread.join()
     
     log.warn("All threads have been killed")
+    SwarmNet.instance = None
   
   """!
   @brief Clears all messages waiting to be parsed
   """
-  def clear_rx_queue(self):
+  def clear_rx_queue(self) -> None:
+    if(not self._started):
+      log.critical("SwarmNet must be started before use")
+      return
+    
     with self.rx_queue.mutex:
       self.rx_queue.queue.clear()
       
   """!
   @brief Clears all messages waiting to be sent
   """
-  def clear_tx_queue(self):
+  def clear_tx_queue(self) -> None:
+    if(not self._started):
+      log.critical("SwarmNet must be started before use")
+      return
+    
     with self.tx_queue.mutex:
       self.tx_queue.queue.clear()
     
   def _register_new_member(self, msg: Optional[str]) -> None:
+    if(not self._started):
+      log.critical("SwarmNet must be started before use")
+      return
+    
     addr = msg.split(" ", 1)[0]
     port = msg.split(" ", 1)[1]
     self.add_device((addr, int(port)))
@@ -122,6 +151,10 @@ class SwarmNet:
   @returns A list of devices
   """
   def get_devices(self) -> List[Tuple[str, int]]:
+    if(not self._started):
+      log.critical("SwarmNet must be started before use")
+      return
+    
     self.swarm_list_lock.acquire()
     ds = self.swarm_list
     self.swarm_list_lock.release()
@@ -135,6 +168,10 @@ class SwarmNet:
   @param ds The list of devices in the form of (IP, Port)
   """
   def set_devices(self, ds: List[Tuple[str, int]]) -> None:
+    if(not self._started):
+      log.critical("SwarmNet must be started before use")
+      return
+    
     if(self.fixed_list):
       return
     
@@ -150,6 +187,10 @@ class SwarmNet:
   @param d The device (IP, Port)
   """
   def add_device(self, d: Tuple[str, int]) -> None:
+    if(not self._started):
+      log.critical("SwarmNet must be started before use")
+      return
+    
     if(self.fixed_list):
       return
     
@@ -172,6 +213,10 @@ class SwarmNet:
   @param d The device to remove in the form (IP, Port)
   """
   def remove_device(self, d: Tuple[str, int]) -> None:
+    if(not self._started):
+      log.critical("SwarmNet must be started before use")
+      return
+    
     if(self.fixed_list):
       return
     
@@ -210,7 +255,11 @@ class SwarmNet:
   
   @param msg The message to send
   """
-  def send(self, msg: str):
+  def send(self, msg: str) -> None:
+    if(not self._started):
+      log.critical("SwarmNet must be started before use")
+      return
+    
     header = self._calc_header()
     self._append_seen_messages(header)
     self.tx_queue.put(f"{header}:{msg}", block=True)
@@ -222,7 +271,11 @@ class SwarmNet:
   
   @param The message to send
   """  
-  def broadcast(self, msg: str):
+  def broadcast(self, msg: str) -> None:
+    if(not self._started):
+      log.critical("SwarmNet must be started before use")
+      return
+    
     header = self._calc_header()
     self._append_seen_messages(header)
     self.broadcaster.broadcast(f"{header}:{msg}")
