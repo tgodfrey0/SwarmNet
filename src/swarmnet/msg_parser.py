@@ -21,9 +21,10 @@ class MessageParser:
       data = msg[1]
       
     try:
-      # self.ctrl.fn_map[cmd](data)
-      threading.Thread(target=self.fn_map[cmd], args=[data]).start()
-      log.info(f"Parse thread spawned to parse {cmd} command")
+      f = self.fn_map[cmd]
+      if(f is not None):
+        threading.Thread(target=f, args=[data]).start()
+        log.info(f"Parse thread spawned to parse {cmd} command")
       
     except KeyError:
       log.error(f"No registered parser for command {cmd}")
@@ -32,4 +33,7 @@ class MessageParser:
         if(c == "JOIN"):
           continue
         
-        log.error(c)
+        if(self.fn_map[c] is None):
+          log.error(f"{c} (Ignored)")
+        else:
+          log.error(c)

@@ -22,7 +22,7 @@ class SwarmNet:
   @param device_list A static device list of (IP, Port) (If not provided device discovery will be used) 
   """
   def __init__(self, 
-               mapping: Dict[str, Callable[[Optional[str]], None]], 
+               mapping: Dict[str, Optional[Callable[[Optional[str]], None]]], 
               #  device_retries: int = 3, 
               #  device_refresh_interval: int = 60,
                port: int = 51000,
