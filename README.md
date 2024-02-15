@@ -2,6 +2,8 @@
 
 A robust communications library for robot swarms. This is based on gossip protocols where the message will propagate around the swarm. When an agent receives a message it has not seen before, it will broadcast it to all other members of the swarm. 
 
+This package is now [available on PyPi](https://pypi.org/project/swarmnet/)
+
 ## Usage
 
 A `SwarmNet` object must be created that handles all of the communication. Only one instance should be created. To start the communication framework, the `start()` method must be run.
